@@ -17,7 +17,6 @@ var AWSXRay = require('aws-xray-sdk');
 app.use(AWSXRay.express.openSegment('ExpressLambda'));
 
 var fs = require('fs')
-var models = require('./models/models')
 
 
 router.use(compression())
@@ -33,25 +32,6 @@ router.get('/', (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`)
 })
 
-router.post('/users', async (req, res) => {
-  var users = await models.users.index()
-  res.json(users)
-})
-
-router.get('/users/:userId', async (req, res) => {
-  var user = await models.users.get(req.params.userId)
-  res.json(user)
-})
-
-router.put('/users/:userId', async (req, res) => {
-  var user = await models.users.create(req.body)
-  res.json(user)
-})
-
-router.delete('/users/:userId', async (req, res) => {
-  var user = await models.users.remove(req.params.userId)
-  res.json(user)
-})
 
 router.get('/public/microfrontend.js*', async (req, res) => {
   var module_path = `${__dirname}/${req.path.slice(1)}`

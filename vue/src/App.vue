@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <div>App component</div>
-    <Menu/>
+    <div>HA.WTF</div>
+    <!-- <Menu/> -->
     <pre>
       {{backend_data}}
     </pre>
@@ -21,7 +21,7 @@ export default {
       }
     },
     mounted: function() {
-      this.stub()
+      // this.stub()
     },
     created: function() {
     },

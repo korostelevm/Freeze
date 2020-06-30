@@ -10,10 +10,11 @@
     "body-parser": "^1.17.1",
     "compression": "^1.6.2",
     "cors": "^2.8.3",
+    "dynamoose": "^2.2.1",
     "express": "^4.15.2",
     "faker": "^4.1.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "mongodb": "^3.5.5"
+    "tracer": "^1.1.2"
   }
 }
