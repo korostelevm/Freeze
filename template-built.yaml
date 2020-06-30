@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless Express Microfrontend
+Parameters:
+  RootUrl:
+    Type: String
+    Default: '{{resolve:ssm:/account/root-url:1}}'
+  SslCert:
+    Type: String
+    Default: '{{resolve:ssm:/account/ssl-cert:1}}'
+  Namespace:
+    Type: String
+    Default: ''
+  ServiceSubDomainName:
+    Type: String
+    Default: ha
+Resources:
+  APIDomainName:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      SecurityPolicy: TLS_1_2
+      RegionalCertificateArn:
+        Ref: SslCert
+      DomainName:
+        Fn::Join:
+        - ''
+        - - Ref: ServiceSubDomainName
+          - Ref: Namespace
+          - .
+          - Ref: RootUrl
+      EndpointConfiguration:
+        Types:
+        - REGIONAL
+  APIDomain:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName:
+        Fn::Join:
+        - ''
+        - - Ref: RootUrl
+          - .
+      RecordSets:
+      - Name:
+          Ref: APIDomainName
+        Type: A
+        AliasTarget:
+          DNSName:
+            Fn::GetAtt:
+            - APIDomainName
+            - RegionalDomainName
+          HostedZoneId:
+            Fn::GetAtt:
+            - APIDomainName
+            - RegionalHostedZoneId
+  APIBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      Stage:
+        Ref: ServiceApi.Stage
+      DomainName:
+        Ref: APIDomainName
+      RestApiId:
+        Ref: ServiceApi
+  ServiceApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      DefinitionUri: s3://cold-lambda/ha-wtf-xxxxxxx/3ce02faf2b5e8d6a71bd55d1df124fb7
+      StageName: Prod
+      Variables:
+        ServiceApiFunction:
+          Ref: ServiceApiFunction
+  ServiceApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://cold-lambda/ha-wtf-xxxxxxx/895118700c8dd368cab0aa707b5e287f
+      Handler: service.handler
+      Tracing: Active
+      MemorySize: 1024
+      Runtime: nodejs10.x
+      Timeout: 30
+      Policies:
+      - Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:*
+          Resource: '*'
+      Environment:
+        Variables:
+          ROOT_URL:
+            Ref: RootUrl
+      Events:
+        ProxyApiRoot:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ServiceApi
+            Path: /
+            Method: ANY
+        ProxyApiGreedy:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ServiceApi
+            Path: /{proxy+}
+            Method: ANY
+Outputs:
+  DeploymentStrategy:
+    Description: Deployment strategy instruction for the service
+    Value: ez_zdt
+  ApiUrl:
+    Description: The API URL
+    Value:
+      Fn::Sub: https://${ServiceApi}.execute-api.${AWS::Region}.amazonaws.com/
+  LambdaServiceApiLogs:
+    Description: Api Lambda Logs
+    Value:
+      Fn::Sub: https://console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#logStream:group=/aws/lambda/${ServiceApiFunction};streamFilter=typeLogStreamPrefix

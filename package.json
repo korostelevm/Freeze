@@ -1,0 +1,41 @@
+{
+  "name": "aws-serverless-express-example",
+  "version": "2.1.1",
+  "description": "Example application for running a Node Express app on AWS Lambda using Amazon API Gateway.",
+  "main": "lambda.js",
+  "config": {
+    "bucket": "",
+    "env": "production",
+    "stage": ""
+  },
+  "scripts": {
+    "install:all": "npm i && concurrently \"cd service && npm i\"  \"cd vue && npm i\"",
+    "build:labmda": "sam build",
+    "build:microfrontend": "rm -rf ./service/public/* && cd vue && ./node_modules/webpack/bin/webpack.js --config ./webpack.config.js -p  && cp ./public/* ../service/public/",
+    "start": "export env=$npm_config_env && concurrently \"npm run start:shell\"  \"npm run start:microfrontend\"  \"nodemon app.local.js\"",
+    "start:shell": "sleep 3  && open http://localhost:1111/",
+    "start:microfrontend": "cd vue && node ./node_modules/@vue/cli-service/bin/vue-cli-service.js serve --port 1111",
+    "deploy": "./deploy.sh $npm_config_bucket"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "aws-serverless-express": "^3.3.8",
+    "body-parser": "^1.17.1",
+    "compression": "^1.6.2",
+    "concurrently": "^5.1.0",
+    "cors": "^2.8.3",
+    "dynamoose": "^2.2.1",
+    "express": "^4.15.2",
+    "faker": "^4.1.0",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "slugify": "^1.4.0",
+    "tracer": "^1.1.2",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2",
+    "webpack-cli": "^3.3.11"
+  }
+}
