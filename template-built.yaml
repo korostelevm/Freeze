@@ -72,7 +72,7 @@ Resources:
   ServiceApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://cold-lambda/ha-wtf-xxxxxxx/85b9c696131a05ea96809652970afb61
+      CodeUri: s3://cold-lambda/ha-wtf-xxxxxxx/55ce42bf3bcd98b8c27ccfacc5a9788d
       Handler: service.handler
       Tracing: Active
       MemorySize: 1024

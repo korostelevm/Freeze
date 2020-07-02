@@ -28,4 +28,4 @@ npm run build:microfrontend
 sam package --template-file template.yaml --s3-bucket ${bucket} --s3-prefix ${app_name}-${version} --output-template-file template-built.yaml
 sam deploy --template-file template-built.yaml --stack-name ${app_name} --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
 
-rm template-api-built.yaml
+rm template-built.yaml
