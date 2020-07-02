@@ -14,7 +14,7 @@ const awsServerlessExpressMiddleware = require('aws-serverless-express/middlewar
 const app = express()
 const router = express.Router()
 var AWSXRay = require('aws-xray-sdk');
-app.use(AWSXRay.express.openSegment('ExpressLambda'));
+app.use(AWSXRay.express.openSegment('HaWtf'));
 
 var fs = require('fs')
 
@@ -29,6 +29,7 @@ router.use(awsServerlessExpressMiddleware.eventContext())
 
 
 router.get('/', (req, res) => {
+  res.setHeader("Content-Type","text/html");
   res.sendFile(`${__dirname}/public/index.html`)
 })
 
