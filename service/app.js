@@ -16,7 +16,8 @@ const router = express.Router()
 var AWSXRay = require('aws-xray-sdk');
 app.use(AWSXRay.express.openSegment('HaWtf'));
 
-var fs = require('fs')
+var fs = require('fs');
+const { notDeepEqual } = require('assert');
 
 
 router.use(compression())
@@ -61,6 +62,10 @@ router.get('/public/*', (req, res) => {
 // Domain Socket for you, so you can remove the usual call to app.listen.
 // app.listen(3000)
 app.use('/api/', router)
+app.use('/integrator/', async (req, res) => {
+  return res.status(200).send('OK')
+})
+
 app.use(AWSXRay.express.closeSegment());
 
 module.exports = app

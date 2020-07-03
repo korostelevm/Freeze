@@ -18,6 +18,10 @@ Parameters:
       Default: 'wtf'
       
 Resources:
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+
   # APIDomainName:
   #   Type: 'AWS::ApiGateway::DomainName'
   #   Properties:
@@ -90,6 +94,12 @@ Resources:
           Properties:
             RestApiId: !Ref ServiceApi
             Path: /api/{proxy+}
+            Method: ANY
+        ProxyIntegratorGreedy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /integrator/{proxy+}
             Method: ANY
  
   StaticS3Bucket:
