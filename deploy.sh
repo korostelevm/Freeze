@@ -2,7 +2,7 @@
 set -e
 version=$(git rev-parse HEAD | cut -c1-8)
 version=xxxxxxx
-app_name=ha-wtf
+app_name=wtf
 bucket=$1
 
 
@@ -29,3 +29,5 @@ sam package --template-file template.yaml --s3-bucket ${bucket} --s3-prefix ${ap
 sam deploy --template-file template-built.yaml --stack-name ${app_name} --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
 
 rm template-built.yaml
+
+aws s3 cp ./service/public/ s3://wtf.coldlambda.com --recursive

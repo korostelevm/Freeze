@@ -15,7 +15,7 @@ Parameters:
     Default: ''
   ServiceSubDomainName: 
       Type: String
-      Default: 'ha'
+      Default: 'wtf'
       
 Resources:
   # APIDomainName:
@@ -116,20 +116,12 @@ Resources:
         Statement:
           - Action: s3:GetObject
             Effect: Allow
-            Resource:
-              - !Join
-                - /
-                - - !GetAtt 'StaticS3Bucket.Arn'
-                  - '*'
+            Resource: !Join ['/', [!GetAtt 'StaticS3Bucket.Arn', '*']]
             Principal:
               CanonicalUser: !GetAtt 'CloudFrontOriginAccessIdentity.S3CanonicalUserId'
           - Action: s3:PutObject
             Effect: Allow
-            Resource:
-              - !Join
-                - /
-                - - !GetAtt 'StaticS3Bucket.Arn'
-                  - '*'
+            Resource: !Join ['/', [!GetAtt 'StaticS3Bucket.Arn', '*']]
             Principal:
               AWS: !Sub "arn:aws:iam::${AWS::AccountId}:user/git"
   
@@ -139,18 +131,12 @@ Resources:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Ref 'StaticS3Bucket'
 
-  MetricsCloudFront:
+  WtfCloudFront:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
         PriceClass: PriceClass_100
-        Aliases:
-          - !Join
-            - ''
-            - - !Ref 'ServiceSubDomainName'
-              - !Ref 'Namespace'
-              - .
-              - !Ref 'RootUrl'
+        Aliases: !Join [ '', [ !Ref ServiceSubDomainName, !Ref Namespace, '.', !Ref RootUrl ] ]
         DefaultCacheBehavior:
           AllowedMethods:
             - HEAD
@@ -195,36 +181,20 @@ Resources:
         Enabled: true
         IPV6Enabled: true
         Logging:
-          Bucket: !Join
-            - ''
-            - - !Ref 'StaticS3Bucket'
-              - .s3.amazonaws.com
+          Bucket: !Join ['',[!Ref 'StaticS3Bucket', '.s3.amazonaws.com']]
           IncludeCookies: true
           Prefix: CloudFrontLogs/
         Origins:
           - DomainName: !GetAtt 'StaticS3Bucket.DomainName'
             Id: s3-website
             S3OriginConfig:
-              OriginAccessIdentity: !Join
-                - /
-                - - origin-access-identity
-                  - cloudfront
-                  - !Ref 'CloudFrontOriginAccessIdentity'
-          - DomainName: !Join
-              - '.'
-              - - !Ref ServiceApi
-                - execute-api
-                - !Ref 'AWS::Region'
-                - amazonaws
-                - com
+              OriginAccessIdentity: !Join ['/',['origin-access-identity', 'cloudfront', !Ref 'CloudFrontOriginAccessIdentity']]
+          - DomainName: !Join ['.',[!Ref ServiceApi, 'execute-api', !Ref 'AWS::Region', 'amazonaws.com']]
             Id: apigw
             CustomOriginConfig:
               HTTPSPort: '443'
               OriginProtocolPolicy: https-only
-            OriginPath: !Join
-              - /
-              - - ''
-                - !Ref ServiceApi.Stage
+            OriginPath: !Join ['/', ['',!Ref ServiceApi.Stage]]
             # OriginCustomHeaders:
             #   -
             #     HeaderName: x-api-key
@@ -240,30 +210,15 @@ Resources:
   SiteAliases:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: !Join
-        - .
-        - - !Ref 'RootUrl'
-          - ''
+      HostedZoneName: !Join [ '', [ !Ref RootUrl, '.' ] ]
       RecordSets:
         - AliasTarget:
-            DNSName: !GetAtt 'MetricsCloudFront.DomainName'
+            DNSName: !GetAtt 'WtfCloudFront.DomainName'
             HostedZoneId: Z2FDTNDATAQYW2
-          Name: !Join
-            - .
-            - - !Join
-                - ''
-                - - !Ref 'ServiceSubDomainName'
-                  - !Ref 'Namespace'
-                  - .
-                  - !Ref 'RootUrl'
-              - ''
-          Type: A
+            Name: !Join [ '', [ !Ref ServiceSubDomainName, !Ref Namespace, '.', !Ref RootUrl ] ]
+            Type: A
 
 Outputs:
-    DeploymentStrategy:
-        Description: 'Deployment strategy instruction for the service'
-        Value: ez_zdt
-
     ApiUrl:
         Description: The API URL
         Value: !Sub "https://${ServiceApi}.execute-api.${AWS::Region}.amazonaws.com/"
