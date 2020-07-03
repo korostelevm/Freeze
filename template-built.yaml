@@ -52,15 +52,6 @@ Resources:
             Fn::GetAtt:
             - APIDomainName
             - RegionalHostedZoneId
-  APIBasePathMapping:
-    Type: AWS::ApiGateway::BasePathMapping
-    Properties:
-      Stage:
-        Ref: ServiceApi.Stage
-      DomainName:
-        Ref: APIDomainName
-      RestApiId:
-        Ref: ServiceApi
   ServiceApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -103,6 +94,194 @@ Resources:
               Ref: ServiceApi
             Path: /{proxy+}
             Method: ANY
+  StaticS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Join:
+        - ''
+        - - Ref: ServiceSubDomainName
+          - .
+          - Ref: RootUrl
+      CorsConfiguration:
+        CorsRules:
+        - AllowedHeaders:
+          - '*'
+          AllowedOrigins:
+          - '*'
+          AllowedMethods:
+          - GET
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+  StaticS3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: StaticS3Bucket
+      PolicyDocument:
+        Statement:
+        - Action: s3:GetObject
+          Effect: Allow
+          Resource:
+          - Fn::Join:
+            - /
+            - - Fn::GetAtt:
+                - StaticS3Bucket
+                - Arn
+              - '*'
+          Principal:
+            CanonicalUser:
+              Fn::GetAtt:
+              - CloudFrontOriginAccessIdentity
+              - S3CanonicalUserId
+        - Action: s3:PutObject
+          Effect: Allow
+          Resource:
+          - Fn::Join:
+            - /
+            - - Fn::GetAtt:
+                - StaticS3Bucket
+                - Arn
+              - '*'
+          Principal:
+            AWS:
+              Fn::Sub: arn:aws:iam::${AWS::AccountId}:user/git
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment:
+          Ref: StaticS3Bucket
+  MetricsCloudFront:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        PriceClass: PriceClass_100
+        Aliases:
+        - Fn::Join:
+          - ''
+          - - Ref: ServiceSubDomainName
+            - Ref: Namespace
+            - .
+            - Ref: RootUrl
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - HEAD
+          - OPTIONS
+          - GET
+          CachedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+          ForwardedValues:
+            QueryString: true
+          DefaultTTL: 30
+          MaxTTL: 30
+          MinTTL: 15
+          TargetOriginId: s3-website
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+        CacheBehaviors:
+        - AllowedMethods:
+          - HEAD
+          - OPTIONS
+          - GET
+          TargetOriginId: apigw
+          PathPattern: /api/*
+          MaxTTL: '0'
+          MinTTL: '0'
+          DefaultTTL: '0'
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: true
+        CustomErrorResponses:
+        - ErrorCachingMinTTL: 30
+          ErrorCode: 403
+          ResponseCode: 200
+          ResponsePagePath: /index.html
+        - ErrorCachingMinTTL: 30
+          ErrorCode: 404
+          ResponseCode: 200
+          ResponsePagePath: /index.html
+        DefaultRootObject: ''
+        Enabled: true
+        IPV6Enabled: true
+        Logging:
+          Bucket:
+            Fn::Join:
+            - ''
+            - - Ref: StaticS3Bucket
+              - .s3.amazonaws.com
+          IncludeCookies: true
+          Prefix: CloudFrontLogs/
+        Origins:
+        - DomainName:
+            Fn::GetAtt:
+            - StaticS3Bucket
+            - DomainName
+          Id: s3-website
+          S3OriginConfig:
+            OriginAccessIdentity:
+              Fn::Join:
+              - /
+              - - origin-access-identity
+                - cloudfront
+                - Ref: CloudFrontOriginAccessIdentity
+        - DomainName:
+            Fn::Join:
+            - .
+            - - Ref: ServiceApi
+              - execute-api
+              - Ref: AWS::Region
+              - amazonaws
+              - com
+          Id: apigw
+          CustomOriginConfig:
+            HTTPSPort: '443'
+            OriginProtocolPolicy: https-only
+          OriginPath:
+            Fn::Join:
+            - /
+            - - ''
+              - Ref: ServiceApi.Stage
+        ViewerCertificate:
+          AcmCertificateArn:
+            Ref: SslCert
+          MinimumProtocolVersion: TLSv1.2_2018
+          SslSupportMethod: sni-only
+      Tags:
+      - Key: owasp-waf
+        Value: secure
+  SiteAliases:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName:
+        Fn::Join:
+        - .
+        - - Ref: RootUrl
+          - ''
+      RecordSets:
+      - AliasTarget:
+          DNSName:
+            Fn::GetAtt:
+            - MetricsCloudFront
+            - DomainName
+          HostedZoneId: Z2FDTNDATAQYW2
+        Name:
+          Fn::Join:
+          - .
+          - - Fn::Join:
+              - ''
+              - - Ref: ServiceSubDomainName
+                - Ref: Namespace
+                - .
+                - Ref: RootUrl
+            - ''
+        Type: A
 Outputs:
   DeploymentStrategy:
     Description: Deployment strategy instruction for the service
