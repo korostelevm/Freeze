@@ -6,7 +6,7 @@ basePath: /Prod
 schemes:
 - https
 paths:
-  /:
+  /api/:
     x-amazon-apigateway-any-method:
       produces:
       - application/json
@@ -53,7 +53,7 @@ paths:
         requestTemplates:
           application/json: "{\"statusCode\": 200}"
         type: mock
-  /{proxy+}:
+  /api/{proxy+}:
     x-amazon-apigateway-any-method:
       produces:
       - application/json

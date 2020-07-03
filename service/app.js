@@ -34,6 +34,8 @@ router.get('/', (req, res) => {
 })
 
 router.get('/users', (req, res) => {
+  console.log('hit')
+  console.log(req)
   res.json({
     asdf:'asf'
   })
@@ -58,7 +60,7 @@ router.get('/public/*', (req, res) => {
 // The aws-serverless-express library creates a server and listens on a Unix
 // Domain Socket for you, so you can remove the usual call to app.listen.
 // app.listen(3000)
-app.use('/', router)
+app.use('/api/', router)
 app.use(AWSXRay.express.closeSegment());
 
 module.exports = app

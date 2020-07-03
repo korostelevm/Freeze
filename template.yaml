@@ -66,7 +66,7 @@ Resources:
       Handler: service.handler
       Tracing: Active
       MemorySize: 1024
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       Timeout: 30
       Policies:
         - Statement:
@@ -83,13 +83,13 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ServiceApi
-            Path: /
+            Path: /api/
             Method: ANY
         ProxyApiGreedy:
           Type: Api
           Properties:
             RestApiId: !Ref ServiceApi
-            Path: /{proxy+}
+            Path: /api/{proxy+}
             Method: ANY
  
   StaticS3Bucket:
@@ -161,13 +161,18 @@ Resources:
               - HEAD
               - OPTIONS
               - GET
+              - POST
+              - DELETE
+              - PUT
+              - PATCH
             TargetOriginId: apigw
+            Compress: true
             PathPattern: /api/*
             MaxTTL: '0'
             MinTTL: '0'
             DefaultTTL: '0'
             ViewerProtocolPolicy: redirect-to-https
-            ForwardedValues:
+            ForwardedValues: 
               QueryString: true
         CustomErrorResponses:
           - ErrorCachingMinTTL: 30
