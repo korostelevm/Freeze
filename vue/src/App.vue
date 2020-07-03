@@ -21,7 +21,7 @@ export default {
       }
     },
     mounted: function() {
-      // this.stub()
+      this.stub()
     },
     created: function() {
     },
@@ -29,12 +29,12 @@ export default {
        stub: function(d) {
         return new Promise((resolve,reject)=>{
           fetch(this.$api + '/users', {
-              method: 'POST',
+              method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': this.get_auth_header()
               },
-              body: JSON.stringify(d),
+              // body: JSON.stringify(d),
             })
             .then(res => res.json())
             .then(data => {

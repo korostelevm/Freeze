@@ -23,11 +23,11 @@ Deploying -
 # fi
 
 set -x
-npm run build:microfrontend
+# npm run build:microfrontend
 
 sam package --template-file template.yaml --s3-bucket ${bucket} --s3-prefix ${app_name}-${version} --output-template-file template-built.yaml
 sam deploy --template-file template-built.yaml --stack-name ${app_name} --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
 
 rm template-built.yaml
-
-aws s3 cp ./service/public/ s3://wtf.coldlambda.com --recursive
+cd vue && npm run build
+aws s3 cp ./dist s3://wtf.coldlambda.com --recursive  

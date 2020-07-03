@@ -33,6 +33,12 @@ router.get('/', (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`)
 })
 
+router.get('/users', (req, res) => {
+  res.json({
+    asdf:'asf'
+  })
+})
+
 
 router.get('/public/microfrontend.js*', async (req, res) => {
   var module_path = `${__dirname}/${req.path.slice(1)}`

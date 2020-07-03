@@ -136,7 +136,8 @@ Resources:
     Properties:
       DistributionConfig:
         PriceClass: PriceClass_100
-        Aliases: !Join [ '', [ !Ref ServiceSubDomainName, !Ref Namespace, '.', !Ref RootUrl ] ]
+        Aliases: 
+          - !Join [ '', [ !Ref ServiceSubDomainName, !Ref Namespace, '.', !Ref RootUrl ] ]
         DefaultCacheBehavior:
           AllowedMethods:
             - HEAD
@@ -207,16 +208,17 @@ Resources:
         - Key: owasp-waf
           Value: secure
 
+  
   SiteAliases:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      HostedZoneName: !Join [ '', [ !Ref RootUrl, '.' ] ]
-      RecordSets:
-        - AliasTarget:
-            DNSName: !GetAtt 'WtfCloudFront.DomainName'
-            HostedZoneId: Z2FDTNDATAQYW2
-            Name: !Join [ '', [ !Ref ServiceSubDomainName, !Ref Namespace, '.', !Ref RootUrl ] ]
+      Type: AWS::Route53::RecordSetGroup
+      Properties:
+        HostedZoneName: !Join [ '', [ !Ref RootUrl, '.' ] ]
+        RecordSets:
+          - Name: !Join [ '', [ !Ref ServiceSubDomainName, !Ref Namespace, '.', !Ref RootUrl ] ]
             Type: A
+            AliasTarget:
+              DNSName: !GetAtt 'WtfCloudFront.DomainName'
+              HostedZoneId: Z2FDTNDATAQYW2
 
 Outputs:
     ApiUrl:

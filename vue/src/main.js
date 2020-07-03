@@ -5,7 +5,7 @@ import vueCustomElement from 'vue-custom-element'
 Vue.use(vueCustomElement);
 
 // Vue.prototype.$api = 'http://localhost:3000'
-Vue.prototype.$api = '/'
+Vue.prototype.$api = '/api'
 
 Vue.prototype.$dispatch = function(channel, o) {
   window.dispatchEvent(new CustomEvent(`express-lambda-ui:${channel}`, {
