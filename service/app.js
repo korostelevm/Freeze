@@ -18,6 +18,7 @@ app.use(AWSXRay.express.openSegment('HaWtf'));
 
 var fs = require('fs');
 const { notDeepEqual } = require('assert');
+const reqs = require('./models/reqs');
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -77,11 +78,11 @@ app.use('/', async (req, res) => {
   console.log('query', JSON.stringify(req.query,null,2))
   var original_event_no_body = JSON.parse(decodeUriComponent(headers['x-apigateway-event']))
   console.log('original_event_no_body', JSON.stringify(original_event_no_body,null,2))
-
   console.log(util.inspect(req, { compact: true, depth: 5, breakLength: 80 }));
 
-  // console.log('req', JSON.stringify(req,null,2))
-  return res.status(200).send('OK')
+  // var request = reqs.create(req)
+  console.log('req', JSON.stringify(request,null,2))
+  return res.status(200).json(request)
 })
 
 app.use(AWSXRay.express.closeSegment());

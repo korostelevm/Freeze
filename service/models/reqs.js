@@ -3,6 +3,7 @@ var moment = require('moment')
 var _ = require('lodash')
 var sha1 = require('sha1')
 const dynamoose = require('dynamoose');
+
 const Schema = dynamoose.Schema;
 dynamoose.AWS.config.update({
       region: 'us-east-1'
@@ -14,34 +15,41 @@ var schema = new Schema({
             type: String,
             hashKey: true
         },
-        "serviceId": {
+        "req_t": {
+            type: String,
+        },
+        "request": Object,
+        "req_d": {
             type: String,
             index: { 
                 global: true,
-                rangeKey:'path',
-                name: 'serviceIdIndex',
-                project: true, // ProjectionType: ALL
+                rangeKey:'t',
+                name: 'time_index',
+                project: ['id','req'],
+                // project: true, // ProjectionType: ALL
                 throughput: 'ON_DEMAND'
             }
         }, 
-        "contentId": {
-            type: String,
-            index: {
-                global: true,
-                name: 'contentIdIndex',
-                project: true, // ProjectionType: ALL
-                throughput: 'ON_DEMAND'
-            }
-        }, 
-        query:Object,
-        url_params:String,
-        request_query_params: String,
-        method:String,
-        path:String,
-        request_headers: String,
-        request_body: String,
-        response_headers: String,
-        response_body: String,
+        req:Object,
+        req_body:String,
+        // "contentId": {
+        //     type: String,
+        //     index: {
+        //         global: true,
+        //         name: 'contentIdIndex',
+        //         project: true, // ProjectionType: ALL
+        //         throughput: 'ON_DEMAND'
+        //     }
+        // }, 
+        // query:Object,
+        // url_params:String,
+        // request_query_params: String,
+        // method:String,
+        // path:String,
+        // request_headers: String,
+        // request_body: String,
+        // response_headers: String,
+        // response_body: String,
     },{
         saveUnknown: true,
         useDocumentTypes: true,
@@ -125,18 +133,15 @@ const get = function(mockId){
     })
 }
     
-const create = function(m){
-    console.log(m)
+const create = function(r){
     return new Promise( async (resolve, reject)=>{
-        var mock = {
-            id: [m.service.id, m.mock.name].map((d)=>{return slugify(d)}).join('/') + m.path +'['+m.method.method +']',
-            serviceId: m.service.id,
-            contentId: to_content_id([m.serviceId, m.path, m.method.method, m.request_query_params, m.request_body]),
-            path: m.path,
-            method: m.method.method.toLowerCase(),
-            ...m.mock
+        var ts = moment().utc();
+        var req = {
+            id: [m.service.id, m.mock.name].map((d)=>{return slugify(d)}).join('/') + m.path +'['+r.method +']',
+            req_d: ts.format("YYYY-MM-DD"),
+            req_t: ts.format("HH:mm:ss:SSSS"),
         }
-        mock = new Model(mock)
+        req = new Model(req)
         
         // var mock = new Model({
         //     id,
@@ -169,9 +174,9 @@ const create = function(m){
         // //   var mock = new Model(mock_definition)
         // console.log(mock)
 
-        mock.save()
-        .then(function(mocks) {
-                return resolve(mocks)
+        req.save()
+        .then(function(reqs) {
+                return resolve(reqs)
             })
     })
 }
