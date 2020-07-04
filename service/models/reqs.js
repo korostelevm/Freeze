@@ -3,11 +3,12 @@ var moment = require('moment')
 var _ = require('lodash')
 var sha1 = require('sha1')
 const dynamoose = require('dynamoose');
+dynamoose.aws.sdk.config.update({
+    "region": "us-east-1"
+});
 
 const Schema = dynamoose.Schema;
-dynamoose.AWS.config.update({
-      region: 'us-east-1'
-    });
+
 var slugify = require('slugify')
  
 var schema = new Schema({
