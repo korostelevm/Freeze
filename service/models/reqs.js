@@ -92,7 +92,7 @@ const query = async function(day=null){
         var day = moment().utc().format("YYYY-MM-DD");
         console.log(day)
         try{
-            var res = await Model.query('d').eq(day).sort("descending").using('timeIndex').exec()
+            var res = await Model.query('d').eq(day).sort("descending").limit(20).using('timeIndex').exec()
             res = res.map(r=>{return r.original()})
             return res
         }catch(e){
@@ -134,10 +134,9 @@ const serve = function(req){
     })
 }
 
-const get = function(mockId){
-    console.log(mockId)
+const get = function(id){
     return new Promise( async (resolve, reject)=>{
-        Model.get(mockId)
+        Model.get(id)
         .then(function(m) {
             console.log(m)
                 return resolve(m)

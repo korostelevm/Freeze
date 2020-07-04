@@ -38,8 +38,12 @@ router.get('/', (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`)
 })
 
+router.get('/integration/:id', async (req, res) => {
+  var results = await reqs.get(req.params.id)
+  res.json(results)
+})
+
 // router.get('/request/{', async (req, res) => {
-//   var results = await reqs.get(req.query)
 //   res.json(results)
 // })
 

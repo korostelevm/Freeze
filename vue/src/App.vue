@@ -4,7 +4,9 @@
   <div v-for="(r) in reqs" :key="r.id">
     
     <b-alert class='req' variant="success" show >
-        <b-row v-b-toggle="r.id">
+        <b-row v-b-toggle="r.id"
+        v-on:click="collapse_show(r)"
+        >
       <b-col cols="1">
         <b-badge variant='success'>{{r.req.method}}</b-badge>
       </b-col>
@@ -25,6 +27,7 @@
       <b-collapse :id="r.id" class="mt-2">
         <b-card>
           <pre class='payload'>{{JSON.stringify(r,null,2)}}</pre>
+          <pre class='payload' v-if="r.full">{{r.full}}</pre>
         </b-card>
       </b-collapse>
       </b-row>
@@ -55,6 +58,29 @@ export default {
     created: function() {
     },
     methods: {
+      get_req:function(r){
+        return new Promise((resolve,reject)=>{
+          fetch(this.$api + '/integration/'+r.id, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': this.get_auth_header()
+              },
+              // body: JSON.stringify(d),
+            })
+            .then(res => res.json()) 
+            .then(data => {
+              resolve(data)
+            })
+          })
+      },
+      collapse_show: async function(e){
+        console.log(e)
+        // e.body='asdf'
+        var res = await this.get_req(e)
+        this.reqs[this.reqs.indexOf(e)].full = 'asdf'
+        return res
+      },
        stub: function(d) {
         return new Promise((resolve,reject)=>{
           fetch(this.$api + '/integrations', {
