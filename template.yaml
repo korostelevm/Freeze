@@ -15,7 +15,7 @@ Parameters:
     Default: ''
   ServiceSubDomainName: 
       Type: String
-      Default: 'wtf'
+      Default: 'freeze'
       
 Resources:
 
