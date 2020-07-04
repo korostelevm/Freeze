@@ -19,8 +19,49 @@ Parameters:
       
 Resources:
 
-  HttpApi:
+  IntegratorHttpApi:
     Type: AWS::Serverless::HttpApi
+    Properties:
+      Domain:
+        DomainName: !Join [ '', [ 'integrator', !Ref Namespace, '.', !Ref RootUrl ] ]
+        CertificateArn: !Ref 'SslCert'
+        EndpointConfiguration: REGIONAL
+        Route53:
+          HostedZoneName:
+            Fn::Join: [ '', [ Ref: RootUrl, '.' ] ]
+        # BasePath:
+        #   - /foo
+        #   - /bar
+
+  # ServicesTable:
+  #     Type: AWS::DynamoDB::Table
+  #     Properties:
+  #       BillingMode: PAY_PER_REQUEST
+  #       AttributeDefinitions:
+  #       - AttributeName: "serviceId"
+  #         AttributeType: "S"
+  #       - 
+  #         AttributeName: Service
+  #         AttributeType: S
+  #       KeySchema:
+  #       - AttributeName: "serviceId"
+  #         KeyType: "HASH"
+  #       GlobalSecondaryIndexes:
+  #         -
+  #           IndexName: ServiceIndex
+  #           KeySchema:
+  #             - 
+  #                 AttributeName: Service
+  #                 KeyType: HASH
+  #             - 
+  #                 AttributeName: serviceId
+  #                 KeyType: RANGE
+  #           Projection:
+  #             ProjectionType: ALL
+  #       SSESpecification:
+  #         SSEEnabled: True
+  #       TableName: !Join [ '', [ '', !Ref "Namespace"] ]
+  
 
   # APIDomainName:
   #   Type: 'AWS::ApiGateway::DomainName'
@@ -98,8 +139,8 @@ Resources:
         ProxyIntegratorGreedy:
           Type: HttpApi
           Properties:
-            ApiId: !Ref HttpApi
-            Path: /integrator/{proxy+}
+            ApiId: !Ref IntegratorHttpApi
+            Path: /{proxy+}
             Method: ANY
  
   StaticS3Bucket:

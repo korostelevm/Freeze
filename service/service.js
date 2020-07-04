@@ -33,7 +33,6 @@ exports.handler = (event, context) => {
     event.path = event.rawPath
     event.httpMethod = event.requestContext.method
   }
-
   console.log(JSON.stringify(event,null,2))
   console.log(JSON.stringify(context,null,2))
   return awsServerlessExpress.proxy(server, event, context)}

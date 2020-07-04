@@ -62,7 +62,15 @@ router.get('/public/*', (req, res) => {
 // Domain Socket for you, so you can remove the usual call to app.listen.
 // app.listen(3000)
 app.use('/api/', router)
-app.use('/integrator/', async (req, res) => {
+
+// Integrator routes
+app.use('/', async (req, res) => {
+  console.log(req.headers)
+  console.log(req.body)
+  console.log(req.query)
+  console.log(JSON.stringify(req.headers,null,2))
+  console.log(JSON.stringify(req.body,null,2))
+  console.log(JSON.stringify(req.query,null,2))
   return res.status(200).send('OK')
 })
 
