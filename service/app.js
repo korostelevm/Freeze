@@ -4,7 +4,7 @@ global.logger = require('tracer').console({
   error:
           '<{{title}}> (in {{file}}:{{line}}) {{message}}\nCall Stack:\n{{stack}}' // error format
 });
-
+const util = require('util');
 const path = require('path')
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -19,6 +19,9 @@ app.use(AWSXRay.express.openSegment('HaWtf'));
 var fs = require('fs');
 const { notDeepEqual } = require('assert');
 
+app.use(cors())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
 router.use(compression())
 router.use(cors())
@@ -65,12 +68,19 @@ app.use('/api/', router)
 
 // Integrator routes
 app.use('/', async (req, res) => {
-  console.log(req.headers)
-  console.log(req.body)
-  console.log(req.query)
-  console.log(JSON.stringify(req.headers,null,2))
-  console.log(JSON.stringify(req.body,null,2))
-  console.log(JSON.stringify(req.query,null,2))
+  console.log('method',req.method)
+  console.log('headers',req.headers)
+  console.log('body',req.body)
+  console.log('query',req.query)
+  console.log('headers', JSON.stringify(req.headers,null,2))
+  console.log('body', JSON.stringify(req.body,null,2))
+  console.log('query', JSON.stringify(req.query,null,2))
+  var original_event_no_body = JSON.parse(decodeUriComponent(headers['x-apigateway-event']))
+  console.log('original_event_no_body', JSON.stringify(original_event_no_body,null,2))
+
+  console.log(util.inspect(req, { compact: true, depth: 5, breakLength: 80 }));
+
+  // console.log('req', JSON.stringify(req,null,2))
   return res.status(200).send('OK')
 })
 

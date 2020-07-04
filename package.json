@@ -20,6 +20,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "aws-serverless-express": "^3.3.8",
+    "axios": "^0.19.2",
     "body-parser": "^1.17.1",
     "compression": "^1.6.2",
     "concurrently": "^5.1.0",
@@ -27,8 +28,10 @@
     "dynamoose": "^2.2.1",
     "express": "^4.15.2",
     "faker": "^4.1.0",
+    "jest": "^26.1.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
+    "request": "^2.88.2",
     "slugify": "^1.4.0",
     "tracer": "^1.1.2",
     "webpack": "^4.39.3",
