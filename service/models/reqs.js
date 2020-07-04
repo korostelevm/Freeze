@@ -92,7 +92,7 @@ const query = async function(day=null){
         var day = moment().utc().format("YYYY-MM-DD");
         console.log(day)
         try{
-            var res = await Model.query('d').eq(day).using('timeIndex').exec()
+            var res = await Model.query('d').eq(day).sort("descending").using('timeIndex').exec()
             res = res.map(r=>{return r.original()})
             return res
         }catch(e){
