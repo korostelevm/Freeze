@@ -4,7 +4,7 @@
   <div v-for="(r) in reqs" :key="r.id">
     
     <b-alert class='req' variant="success" show >
-        <b-row v-b-toggle="r.id"
+        <b-row 
         v-on:click="collapse_show(r)"
         >
       <b-col cols="1">
@@ -23,11 +23,12 @@
             </b-col>
         </b-row>
         <b-row>
-        <!-- <b-button v-b-toggle.collapse-1 variant="primary">Toggle Collapse</b-button> -->
-      <b-collapse :id="r.id" class="mt-2">
-        <b-card>
-          <pre class='payload'>{{JSON.stringify(r,null,2)}}</pre>
-          <pre class='payload' v-if="r.full">{{r.full}}</pre>
+      <b-collapse :id="r.id" class="mt-2" accordion="my-accordion" >
+        <b-card >
+          <div class="text-center" v-if="loading==r.id">
+            <b-spinner label="Spinning"></b-spinner>
+          </div>
+          <pre class='payload'>{{req_body}}</pre>
         </b-card>
       </b-collapse>
       </b-row>
@@ -49,7 +50,9 @@ export default {
       return {
         error: false,
         loading: false,
-        reqs:[]
+        reqs:[],
+        req_body:false,
+        active: null
       }
     },
     mounted: function() {
@@ -60,6 +63,7 @@ export default {
     methods: {
       get_req:function(r){
         return new Promise((resolve,reject)=>{
+          this.loading = r.id
           fetch(this.$api + '/integration/'+r.id, {
               method: 'GET',
               headers: {
@@ -70,16 +74,19 @@ export default {
             })
             .then(res => res.json()) 
             .then(data => {
+              this.loading = false;
               resolve(data)
             })
           })
       },
       collapse_show: async function(e){
-        console.log(e)
-        // e.body='asdf'
-        var res = await this.get_req(e)
-        this.reqs[this.reqs.indexOf(e)].full = 'asdf'
-        return res
+        this.$root.$emit('bv::toggle::collapse',e.id)
+        console.log(e.id)
+        if(this.active != e.id){
+          this.req_body = null
+          this.req_body = await this.get_req(e)
+        }
+        this.active = e.id
       },
        stub: function(d) {
         return new Promise((resolve,reject)=>{
@@ -93,7 +100,6 @@ export default {
             })
             .then(res => res.json()) 
             .then(data => {
-              console.log(data)
               this.reqs=data.map(r=>{
                 var ts  = moment.utc(r.d + ' ' + r.t, 'YYYY-MM-DD HH:mm:ss:SSSS' )
                 r.time_ago = ts.fromNow()
