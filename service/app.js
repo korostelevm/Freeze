@@ -38,28 +38,25 @@ router.get('/', (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`)
 })
 
-router.get('/users', (req, res) => {
-  console.log('hit')
-  // console.log(req)
-  res.json({
-    asdf:'asf'
-  })
+router.get('/integrations', (req, res) => {
+  var results = await reqs.query()
+  res.json(results)
 })
 
 
-router.get('/public/microfrontend.js*', async (req, res) => {
-  var module_path = `${__dirname}/${req.path.slice(1)}`
-  if(req.apiGateway){
-    var umd_module = await fs.readFileSync(module_path)
-    res.send(umd_module.toString().replace(/http:\/\/localhost:3000/g, 'https://'+req.apiGateway.event.headers.Host))
-  }else{
-    res.sendFile(module_path)
-  }
-});
+// router.get('/public/microfrontend.js*', async (req, res) => {
+//   var module_path = `${__dirname}/${req.path.slice(1)}`
+//   if(req.apiGateway){
+//     var umd_module = await fs.readFileSync(module_path)
+//     res.send(umd_module.toString().replace(/http:\/\/localhost:3000/g, 'https://'+req.apiGateway.event.headers.Host))
+//   }else{
+//     res.sendFile(module_path)
+//   }
+// });
 
-router.get('/public/*', (req, res) => {
-  res.sendFile(`${__dirname}/${req.path.slice(1)}`)
-})
+// router.get('/public/*', (req, res) => {
+//   res.sendFile(`${__dirname}/${req.path.slice(1)}`)
+// })
 
 
 // The aws-serverless-express library creates a server and listens on a Unix
@@ -69,19 +66,18 @@ app.use('/api/', router)
 
 // Integrator routes
 app.use('/', async (req, res) => {
-  console.log('method',req.method)
-  console.log('headers',req.headers)
-  console.log('body',req.body)
-  console.log('query',req.query)
-  console.log('headers', JSON.stringify(req.headers,null,2))
-  console.log('body', JSON.stringify(req.body,null,2))
-  console.log('query', JSON.stringify(req.query,null,2))
-  var original_event_no_body = JSON.parse(decodeUriComponent(headers['x-apigateway-event']))
-  console.log('original_event_no_body', JSON.stringify(original_event_no_body,null,2))
-  console.log(util.inspect(req, { compact: true, depth: 5, breakLength: 80 }));
-
-  // var request = reqs.create(req)
-  console.log('req', JSON.stringify(request,null,2))
+  // console.log('method',req.method)
+  // console.log('headers',req.headers)
+  // console.log('body',req.body)
+  // console.log('query',req.query)
+  // console.log('headers', JSON.stringify(req.headers,null,2))
+  // console.log('body', JSON.stringify(req.body,null,2))
+  // console.log('query', JSON.stringify(req.query,null,2))
+  // var original_event_no_body = JSON.parse(decodeURIComponent(req.headers['x-apigateway-event']))
+  // console.log('original_event_no_body', JSON.stringify(original_event_no_body,null,2))
+  // console.log(util.inspect(req, { compact: true, depth: 5, breakLength: 80 }));
+  var request = await reqs.create(req)
+  // console.log('req', JSON.stringify(request,null,2))
   return res.status(200).json(request)
 })
 

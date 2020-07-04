@@ -28,7 +28,7 @@ export default {
     methods: {
        stub: function(d) {
         return new Promise((resolve,reject)=>{
-          fetch(this.$api + '/users', {
+          fetch(this.$api + '/integrations', {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
