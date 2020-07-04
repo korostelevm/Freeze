@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
 
 router.get('/users', (req, res) => {
   console.log('hit')
-  console.log(req)
+  // console.log(req)
   res.json({
     asdf:'asf'
   })

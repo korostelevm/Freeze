@@ -28,9 +28,12 @@ const binaryMimeTypes = [
 const server = awsServerlessExpress.createServer(app, null, binaryMimeTypes)
 
 exports.handler = (event, context) => {
-  if(event.rawPath){
+  
+  if(event.version == '2.0'){
     event.path = event.rawPath
+    event.httpMethod = event.requestContext.method
   }
+
   console.log(JSON.stringify(event,null,2))
   console.log(JSON.stringify(context,null,2))
   return awsServerlessExpress.proxy(server, event, context)}
