@@ -196,7 +196,7 @@ const create = async function(req){
         delete r.headers['host']
         var ts = moment().utc();
         var res = await axios.get('https://api.ipdata.co/'+r.requestContext.http.sourceIp+'?api-key=2364233ca1b16417174e2cefaea7eac7c797e2e113d96332c23d2c0d')
-        var ip_source = JSON.stringify(es.data)
+        var ip_source = JSON.stringify(res.data)
 
         var request = {
             ...r.requestContext.http,
