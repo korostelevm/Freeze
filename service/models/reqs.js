@@ -1,4 +1,5 @@
 var faker = require('faker')
+const axios = require('axios');
 var moment = require('moment')
 var _ = require('lodash')
 var sha1 = require('sha1')
@@ -97,7 +98,7 @@ const query = async function(day=null){
             return res
         }catch(e){
             console.error(e)
-        }
+        }    
     return 'asdf'
 } 
 
@@ -134,11 +135,10 @@ const serve = function(req){
     })
 }
 
-const get = function(id){
+const get = async function(id){
     return new Promise( async (resolve, reject)=>{
         Model.get(id)
-        .then(function(m) {
-            console.log(m)
+        .then(async function(m) {
                 return resolve(m)
             })
     })
@@ -185,7 +185,7 @@ const get = function(id){
 //     "httpMethod": "POST"
 // }
 
-const create = function(req){
+const create = async function(req){
     return new Promise( async (resolve, reject)=>{
         var r = JSON.parse(decodeURIComponent(req.headers['x-apigateway-event']))
         delete r.headers['x-amzn-trace-id']
@@ -195,11 +195,16 @@ const create = function(req){
         delete r.headers['user-agent']
         delete r.headers['host']
         var ts = moment().utc();
+        var res = await axios.get('https://api.ipdata.co/'+r.requestContext.http.sourceIp+'?api-key=2364233ca1b16417174e2cefaea7eac7c797e2e113d96332c23d2c0d')
+        var ip_source = res.data
+
         var request = {
             ...r.requestContext.http,
             headers:r.headers,
             query_string: r.rawQueryString,
+            source: ip_source
         }
+
         var doc = {
             id: r.requestContext.requestId,
             d: ts.format("YYYY-MM-DD"),

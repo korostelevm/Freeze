@@ -13,6 +13,7 @@ const compression = require('compression')
 const awsServerlessExpressMiddleware = require('aws-serverless-express/middleware')
 const app = express()
 const router = express.Router()
+
 var AWSXRay = require('aws-xray-sdk');
 app.use(AWSXRay.express.openSegment('HaWtf'));
 

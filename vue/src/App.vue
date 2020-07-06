@@ -75,6 +75,13 @@ export default {
             .then(res => res.json()) 
             .then(data => {
               this.loading = false;
+              if("req_body" in data && data.req.headers['content-type'] == 'application/json'){
+                try{
+                  data.req_body =  JSON.parse(data.req_body)
+                }catch(e){
+                  console.warn(e)
+                }
+              }
               resolve(data)
             })
           })
