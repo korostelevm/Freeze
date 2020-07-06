@@ -91,10 +91,13 @@ const service_index = function(serviceId){
 
 const query = async function(day=null){
         var day = moment().utc().format("YYYY-MM-DD");
-        console.log(day)
         try{
             var res = await Model.query('d').eq(day).sort("descending").limit(20).using('timeIndex').exec()
-            res = res.map(r=>{return r.original()})
+            res = res.map(r=>{
+                if('source' in r.req){
+                    r.req.source = JSON.parse(r.req.source)
+                }
+                return r.original()})
             return res
         }catch(e){
             console.error(e)
@@ -139,6 +142,9 @@ const get = async function(id){
     return new Promise( async (resolve, reject)=>{
         Model.get(id)
         .then(async function(m) {
+                if('source' in m.req){
+                    m.req.source = JSON.parse(m.req.source)
+                }
                 return resolve(m)
             })
     })
@@ -238,10 +244,8 @@ var to_content_id = function(m){
             ordered[key] = d[key];
             });
             d=slugify(JSON.stringify(ordered))
-            console.log(d)
         }
         d = d.toLowerCase()
-        console.log('id_component',d)
         return d
     }).join(''))
     return id
@@ -249,7 +253,6 @@ var to_content_id = function(m){
 
 const update = function(mockId, mock){
     return new Promise( async (resolve, reject)=>{
-        console.log(mock)
         Model.update({id: mockId},{
             contentId: to_content_id([mock.serviceId, mock.path, mock.method, mock.query, mock.request_body]),
             query: mock.query,

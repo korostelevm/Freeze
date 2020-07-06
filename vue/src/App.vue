@@ -14,6 +14,10 @@
               <span>{{r.req.path}}</span>
             </b-col>
             <b-col>
+              <span>{{r.req.source ? r.req.source.asn.name : r.req.sourceIp}}</span>
+            </b-col>
+            
+            <b-col>
               <span>{{r.req.userAgent}}</span>
             </b-col>
             
@@ -126,7 +130,7 @@ export default {
 <style scoped>
 .main {
   margin:20px  auto ;
-  width:800px;
+  width:1000px;
 }
 .req{
   cursor: pointer;
@@ -134,7 +138,7 @@ export default {
 .payload{
     white-space: pre-wrap;
     width: -webkit-fill-available;
-    width: 745px;
+    width: 945px;
 }
 
 </style>
