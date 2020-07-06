@@ -207,7 +207,7 @@ const create = async function(req){
 
         var doc = {
             id: r.requestContext.requestId,
-            d: ts.format("YYYY-MM-DD"),
+            d: ts.format("YYYY-MM-DD"), 
             t: ts.format("HH:mm:ss:SSSS"),
             req:request,
             isBase64Encoded: r.isBase64Encoded,
