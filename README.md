@@ -12,7 +12,7 @@ npm run start
 
 
 build app, this will build the vue spa module and move it to the lambda's public files dir along with index.html
-```
+``` 
 npm run build
 ```
 
