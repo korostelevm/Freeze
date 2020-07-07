@@ -254,8 +254,8 @@ Resources:
             OriginPath: !Join ['/', ['',!Ref ServiceApi.Stage]]
             # OriginCustomHeaders:
             #   -
-            #     HeaderName: x-api-key
-                # HeaderValue: !Ref InternalApiKey
+            #     HeaderName: Auth
+                # HeaderValue: 
         ViewerCertificate:
           AcmCertificateArn: !Ref 'SslCert'
           MinimumProtocolVersion: TLSv1.2_2018
